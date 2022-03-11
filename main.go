@@ -12,7 +12,7 @@ func main() {
 	config.Load()
 	router := router.Generate()
 
-	fmt.Println("Listening on port 5000")
+	fmt.Printf("Listening on port %s\n", config.ApiPort)
 
-	log.Fatal(http.ListenAndServe(config.ApiPort, router))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", config.ApiPort), router))
 }

@@ -22,8 +22,6 @@ func Load() {
 
 	ApiPort = os.Getenv("API_PORT")
 
-	ApiPort = ":5000"
-
 	DataSourceName = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_USER"),
