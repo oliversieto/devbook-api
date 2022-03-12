@@ -3,6 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"devbook-api/src/models"
+	"fmt"
 )
 
 type users struct {
@@ -14,6 +15,7 @@ func NewUserRepository(database *sql.DB) *users {
 }
 
 func (repository users) Create(user models.User) (uint64, error) {
+
 	statement, err := repository.database.Prepare("insert into users (name, nick, email, phrase) values (?, ?, ?, ?)")
 
 	if err != nil {
@@ -22,7 +24,7 @@ func (repository users) Create(user models.User) (uint64, error) {
 
 	defer statement.Close()
 
-	result, err := repository.database.Exec(user.Name, user.Nick, user.Email, user.Phrase)
+	result, err := statement.Exec(user.Name, user.Nick, user.Email, user.Phrase)
 
 	if err != nil {
 		return 0, err
@@ -35,4 +37,29 @@ func (repository users) Create(user models.User) (uint64, error) {
 	}
 
 	return uint64(ID), nil
+}
+
+func (repository users) GetAll(search string) ([]models.User, error) {
+	search = fmt.Sprintf("%%%s%%", search)
+
+	result, err := repository.database.Query("select id, name, email, nick, createAt from users where lower(name) like ? or lower(nick) like ?", search, search)
+	if err != nil {
+		return nil, err
+	}
+
+	defer result.Close()
+
+	var users []models.User
+
+	for result.Next() {
+		var user models.User
+
+		if err := result.Scan(&user.ID, &user.Name, &user.Email, &user.Nick, &user.CreateAt); err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
 }
