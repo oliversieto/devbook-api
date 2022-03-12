@@ -5,6 +5,7 @@ import (
 	"devbook-api/src/models"
 	"devbook-api/src/repositories"
 	"devbook-api/src/responses"
+	"strings"
 
 	"encoding/json"
 	"io/ioutil"
@@ -12,7 +13,26 @@ import (
 )
 
 func GetAll(w http.ResponseWriter, r *http.Request) {
-	json.NewEncoder(w).Encode(map[string]string{"ping": "pong"})
+	search := strings.ToLower(r.URL.Query().Get("user"))
+
+	dbConnection, err := database.Connect()
+
+	if err != nil {
+		responses.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	defer dbConnection.Close()
+
+	repository := repositories.NewUserRepository(dbConnection)
+	users, err := repository.GetAll(search)
+
+	if err != nil {
+		responses.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.Success(w, http.StatusOK, users)
 }
 
 func GetOne(w http.ResponseWriter, r *http.Request) {
@@ -30,6 +50,11 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
 	if err = json.Unmarshal(body, &user); err != nil {
+		responses.Err(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err = user.Prepare(); err != nil {
 		responses.Err(w, http.StatusBadRequest, err)
 		return
 	}
