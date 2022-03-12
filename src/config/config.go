@@ -24,7 +24,7 @@ func Load() {
 
 	DataSourceName = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DB_USER"),
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_USER"))
+		os.Getenv("DB_PHRASE"),
+		os.Getenv("DB_NAME"))
 
 }
