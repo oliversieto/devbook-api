@@ -63,3 +63,23 @@ func (repository users) GetAll(search string) ([]models.User, error) {
 
 	return users, nil
 }
+
+func (repository users) GetOne(ID uint64) (models.User, error) {
+	result, err := repository.database.Query("select id, name, email, nick, createAt from users where id = ?", ID)
+
+	if err != nil {
+		return models.User{}, err
+	}
+
+	defer result.Close()
+
+	var user models.User
+
+	if result.Next() {
+		if err := result.Scan(&user.ID, &user.Name, &user.Email, &user.Nick, &user.CreateAt); err != nil {
+			return models.User{}, err
+		}
+	}
+
+	return user, nil
+}

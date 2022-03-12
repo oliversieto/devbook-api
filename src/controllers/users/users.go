@@ -5,11 +5,14 @@ import (
 	"devbook-api/src/models"
 	"devbook-api/src/repositories"
 	"devbook-api/src/responses"
+	"strconv"
 	"strings"
 
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 func GetAll(w http.ResponseWriter, r *http.Request) {
@@ -36,6 +39,33 @@ func GetAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetOne(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	ID, err := strconv.ParseUint(params["id"], 10, 64)
+
+	if err != nil {
+		responses.Err(w, http.StatusBadRequest, err)
+		return
+	}
+
+	dbConnection, err := database.Connect()
+
+	if err != nil {
+		responses.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	defer dbConnection.Close()
+
+	repository := repositories.NewUserRepository(dbConnection)
+	user, err := repository.GetOne(ID)
+
+	if err != nil {
+		responses.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.Success(w, http.StatusOK, user)
 
 }
 
