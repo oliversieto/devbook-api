@@ -148,9 +148,8 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	defer dbConnection.Close()
 
 	repository := repositories.NewUserRepository(dbConnection)
-	err = repository.Update(user, ID)
 
-	if err != nil {
+	if err = repository.Update(user, ID); err != nil {
 		responses.Err(w, http.StatusInternalServerError, err)
 		return
 	}
@@ -160,5 +159,30 @@ func Update(w http.ResponseWriter, r *http.Request) {
 }
 
 func Delete(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
 
+	ID, err := strconv.ParseUint(params["id"], 10, 64)
+
+	if err != nil {
+		responses.Err(w, http.StatusBadRequest, err)
+		return
+	}
+
+	dbConnection, err := database.Connect()
+
+	if err != nil {
+		responses.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	defer dbConnection.Close()
+
+	repository := repositories.NewUserRepository(dbConnection)
+
+	if err = repository.Delete(ID); err != nil {
+		responses.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.Success(w, http.StatusNoContent, nil)
 }
