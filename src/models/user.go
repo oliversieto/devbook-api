@@ -1,6 +1,7 @@
 package models
 
 import (
+	"devbook-api/src/security"
 	"errors"
 	"strings"
 	"time"
@@ -19,7 +20,9 @@ type User struct {
 }
 
 func (user *User) Prepare(isAddiction bool) error {
-	user.format()
+	if err := user.format(isAddiction); err != nil {
+		return err
+	}
 
 	if err := user.validate(isAddiction); err != nil {
 		return err
@@ -52,8 +55,20 @@ func (user *User) validate(isAddiction bool) error {
 	return nil
 }
 
-func (user *User) format() {
+func (user *User) format(isAddiction bool) error {
 	user.Name = strings.TrimSpace(user.Name)
 	user.Email = strings.TrimSpace(user.Email)
 	user.Nick = strings.TrimSpace(user.Nick)
+
+	if isAddiction {
+		hashedPhrase, err := security.Hash(user.Phrase)
+
+		if err != nil {
+			return err
+		}
+
+		user.Phrase = string(hashedPhrase)
+	}
+
+	return nil
 }
