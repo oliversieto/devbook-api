@@ -105,6 +105,8 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	user.Phrase = ""
+
 	responses.Success(w, http.StatusCreated, user)
 
 }
