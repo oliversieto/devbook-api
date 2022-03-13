@@ -16,17 +16,17 @@ type User struct {
 	UpdateAt time.Time `json:"updatedAt,omitempty"`
 }
 
-func (user *User) Prepare() error {
+func (user *User) Prepare(isAddiction bool) error {
 	user.format()
 
-	if err := user.validate(); err != nil {
+	if err := user.validate(isAddiction); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (user *User) validate() error {
+func (user *User) validate(isAddiction bool) error {
 	if user.Name == "" {
 		return errors.New("o campo nome é obrigatório")
 	}
@@ -39,7 +39,7 @@ func (user *User) validate() error {
 		return errors.New("o campo nick é obrigatório")
 	}
 
-	if user.Phrase == "" {
+	if isAddiction && user.Phrase == "" {
 		return errors.New("o campo phrase é obrigatório")
 	}
 
