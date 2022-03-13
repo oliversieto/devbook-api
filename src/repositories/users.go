@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"devbook-api/src/models"
 	"fmt"
+	"time"
 )
 
 type users struct {
@@ -82,4 +83,22 @@ func (repository users) GetOne(ID uint64) (models.User, error) {
 	}
 
 	return user, nil
+}
+
+func (repository users) Update(user models.User, ID uint64) error {
+	prepare, err := repository.database.Prepare("update users set name = ?, nick = ?, email = ?, updateAt = ? where id = ?")
+	updateAt := time.Now()
+
+	if err != nil {
+		return err
+	}
+
+	defer prepare.Close()
+
+	if _, err = prepare.Exec(user.Name, user.Nick, user.Email, updateAt, ID); err != nil {
+		return err
+	}
+
+	return nil
+
 }
