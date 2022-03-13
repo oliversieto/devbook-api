@@ -49,7 +49,12 @@ func Authentication(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, _ := authentication.TokenGenerator(savedUser.ID)
+	token, err := authentication.TokenGenerator(savedUser.ID)
+
+	if err != nil {
+		responses.Err(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	responses.Success(w, http.StatusOK, token)
 }
