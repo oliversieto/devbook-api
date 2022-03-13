@@ -11,6 +11,7 @@ import (
 var (
 	DataSourceName = ""
 	ApiPort        = ""
+	SecretKey      []byte
 )
 
 func Load() {
@@ -21,6 +22,8 @@ func Load() {
 	}
 
 	ApiPort = os.Getenv("API_PORT")
+
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 
 	DataSourceName = fmt.Sprintf("%s:%s@/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DB_USER"),
